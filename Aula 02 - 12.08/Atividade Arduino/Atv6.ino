@@ -1,18 +1,16 @@
-const int botaoPin = 2;
-const int ledPin = 13;
-bool ledLigado = false;
+ int botaoPin = 2;
+ int ledPin = 13;
 
 void setup() {
-  pinMode(botaoPin, INPUT_PULLUP);
+  pinMode(botaoPin, INPUT);
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+  digitalWrite(ledPin,LOW);
 }
 
 void loop() {
-  if (digitalRead(botaoPin) == LOW) {
-    ledLigado = !ledLigado;             // inverte o estado do LED
-    digitalWrite(ledPin, ledLigado);   // aplica novo estado no LED
-    delay(200);                        // debounce simples
-    while (digitalRead(botaoPin) == LOW); // espera o botão ser solto
+  if (digitalRead(botaoPin) == HIGH) {       
+    digitalWrite(ledPin, HIGH);   // aplica novo estado no LED
+    delay(2000);    
+    digitalWrite(ledPin, LOW);                    // debounce simples
   }
-}
+} 
