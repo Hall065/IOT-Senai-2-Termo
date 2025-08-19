@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 58.2, "left": -48.6, "attrs": {} },
+    {
+      "type": "wokwi-rgb-led",
+      "id": "rgb1",
+      "top": -63.2,
+      "left": 87.5,
+      "attrs": { "common": "cathode" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 13.55,
+      "left": 19.2,
+      "attrs": { "value": "220000" }
+    }
+  ],
+  "connections": [
+    [ "rgb1:R", "uno:9", "green", [ "v0" ] ],
+    [ "rgb1:G", "uno:10", "green", [ "v86.4", "h-8.3" ] ],
+    [ "rgb1:B", "uno:11", "green", [ "v0" ] ],
+    [ "rgb1:COM", "r1:2", "green", [ "v0" ] ],
+    [ "r1:1", "uno:GND.1", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
