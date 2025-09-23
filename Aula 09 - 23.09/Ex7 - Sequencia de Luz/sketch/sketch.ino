@@ -1,8 +1,8 @@
 // Quantidade de LEDs
-const int numLEDs = 8;
+const int numLEDs = 4;
 
 // Pinos conectados aos LEDs
-int leds[] = {2, 3, 4, 5, 6, 7, 8, 9};
+int leds[] = {2, 3, 4, 5};
 
 void setup() {
   for (int i = 0; i < numLEDs; i++) {
