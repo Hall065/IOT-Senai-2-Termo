@@ -1,25 +1,20 @@
-// Quantidade de LEDs
-const int numLEDs = 4;
-
-// Pinos conectados aos LEDs
-int leds[] = {2, 3, 4, 5};
-
+//Biblioteca do DTH
+#include "DHT.h"
+//armazena o valor de temperatura
+float temperatura;
+//porta usada e o tipo de sensor
+DHT dht(3, DHT11);
+// CÓDIGO
 void setup() {
-  for (int i = 0; i < numLEDs; i++) {
-    pinMode(leds[i], OUTPUT);
-  }
+Serial.begin(9600);// inicializando o monitor serial
+dht.begin();// Inicializando o sensor
 }
-
 void loop() {
-  // Acende um a um
-  for (int i = 0; i < numLEDs; i++) {
-    digitalWrite(leds[i], HIGH);
-    delay(50); // espera
-  }
-
-  // Apaga um a um
-  for (int i = 0; i < numLEDs; i++) {
-    digitalWrite(leds[i], LOW);
-    delay(50);
-  }
+delay(2000);// Aguarda dois segundos entre as leituras
+temperatura = dht.readTemperature();//Lê o valor da temperatura em C°
+//Verificando se existe erro na leitura da temperatura
+if (isnan(temperatura)) { Serial.println("ERRO NO SENSOR!");}
+//Se tudo funcionar envia a temperatura para a serial
+else {Serial.println(temperatura); /*em C°*/}
 }
+/*fim do código :)*/

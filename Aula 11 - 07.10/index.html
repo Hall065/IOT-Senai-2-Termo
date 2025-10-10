@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+  <title>Controle de LEDs com Arduino via Web</title>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Controle de LEDs com Arduino via Web</h1>
+    </header>
+
+    <main class="grid">
+      <section class="card" aria-labelledby="led1">
+        <h2 id="led1">LED 1 (Verde)</h2>
+        <div class="controls">
+          <button class="btn btn-ligar" data-led="1" data-action="on">Ligar</button>
+          <button class="btn btn-desligar" data-led="1" data-action="off">Desligar</button>
+          <div class="status off" id="status-1">OFF</div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="led2">
+        <h2 id="led2">LED 2 (Vermelho)</h2>
+        <div class="controls">
+          <button class="btn btn-ligar" data-led="2" data-action="on">Ligar</button>
+          <button class="btn btn-desligar" data-led="2" data-action="off">Desligar</button>
+          <div class="status off" id="status-2">OFF</div>
+        </div>
+      </section>
+    </main>
+
+    <p class="note">Dica: os botões simulam a ação no front-end. Substitua a função <code>sendCommand()</code> para integrar com seu Arduino (HTTP/Fetch, WebSocket, etc.).</p>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
