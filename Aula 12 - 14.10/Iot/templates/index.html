@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+  <title>Controle de LEDs com Arduino via Web</title>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Controle de LEDs com Arduino via Web</h1>
+    </header>
+
+    <main class="grid">
+      <!-- LED 1 -->
+      <section class="card" aria-labelledby="led1">
+        <h2 id="led1">LED 1 (Verde)</h2>
+        <div class="controls">
+          <button class="btn btn-ligar" data-led="1" data-action="on">Ligar</button>
+          <button class="btn btn-desligar" data-led="1" data-action="off">Desligar</button>
+          <div class="status off" id="status-1">OFF</div>
+        </div>
+      </section>
+
+      <!-- LED 2 -->
+      <section class="card" aria-labelledby="led2">
+        <h2 id="led2">LED 2 (Vermelho)</h2>
+        <div class="controls">
+          <button class="btn btn-ligar" data-led="2" data-action="on">Ligar</button>
+          <button class="btn btn-desligar" data-led="2" data-action="off">Desligar</button>
+          <div class="status off" id="status-2">OFF</div>
+        </div>
+      </section>
+
+      <!-- LED 3 -->
+      <section class="card" aria-labelledby="led3">
+        <h2 id="led3">LED 3 (Azul)</h2>
+        <div class="controls">
+          <button class="btn btn-ligar" data-led="3" data-action="on">Ligar</button>
+          <button class="btn btn-desligar" data-led="3" data-action="off">Desligar</button>
+          <div class="status off" id="status-3">OFF</div>
+        </div>
+      </section>
+    </main>
+
+    <p class="note">
+      Dica: agora os botões enviam requisições pro Flask, que manda comandos pro Arduino em tempo real 🔥
+    </p>
+  </div>
+
+  <script>
+    document.querySelectorAll(".btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const led = btn.getAttribute("data-led");
+        const action = btn.getAttribute("data-action");
+        const statusDiv = document.getElementById(`status-${led}`);
+
+        try {
+          // Faz a requisição pro Flask
+          const response = await fetch(`/control/${led}/${action}`);
+          const result = await response.text();
+
+          console.log(result); // Mostra no console o retorno do Flask
+
+          // Atualiza visualmente o status do LED
+          if (action === "on") {
+            statusDiv.textContent = "ON";
+            statusDiv.classList.remove("off");
+            statusDiv.classList.add("on");
+          } else {
+            statusDiv.textContent = "OFF";
+            statusDiv.classList.remove("on");
+            statusDiv.classList.add("off");
+          }
+
+        } catch (error) {
+          console.error("Erro ao enviar comando:", error);
+          alert("Erro ao conectar com o servidor Flask!");
+        }
+      });
+    });
+  </script>
+
+  <style>
+    /* Um CSS básico direto aqui pra facilitar */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      text-align: center;
+    }
+
+    .grid {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #1f1f1f;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 250px;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+
+    .btn-ligar {
+      background-color: #00b894;
+      color: white;
+    }
+
+    .btn-desligar {
+      background-color: #d63031;
+      color: white;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      padding: 8px;
+      border-radius: 8px;
+      display: inline-block;
+      width: 60px;
+    }
+
+    .status.on {
+      background-color: #f1c40f; /* amarelo vibrante quando ligado */
+      color: #000;
+    }
+
+    .status.off {
+      background-color: #555;
+    }
+
+    .note {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
+</body>
+</html>
