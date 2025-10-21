@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle IoT</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        .bloco { margin-bottom: 20px; }
+        .bloco h2 { border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .bloco p { font-size: 1.2em; }
+        button { font-size: 1em; padding: 10px 15px; margin: 5px; cursor: pointer; border-radius: 5px; border: none; color: white; }
+        .on { background-color: #28a745; }
+        .off { background-color: #dc3545; }
+        #temp, #umid { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Painel de Controle IoT</h1>
+
+        <div class="bloco">
+            <h2>Estação Meteorológica</h2>
+            <p>Temperatura: <span id="temp">--</span> &deg;C</p>
+            <p>Umidade: <span id="umid">--</span> %</p>
+        </div>
+    </div>
+
+    <script>
+        // Função para controlar os LEDs (envia comando para o Python)
+        function controlarLed(ledNum, action) {
+            fetch(`/controlar/${ledNum}/${action}`);
+        }
+
+        // Função para buscar os dados do sensor
+        function buscarDadosSensor() {
+            fetch('/get_data') // Chama a nova rota no app.py
+                .then(response => response.json()) // Converte a resposta para JSON
+                .then(data => {
+                    // Atualiza os valores na página
+                    if (data.error) {
+                        document.getElementById('temp').innerText = "Erro";
+                        document.getElementById('umid').innerText = "Erro";
+                    } else {
+                        document.getElementById('temp').innerText = data.temperatura;
+                        document.getElementById('umid').innerText = data.umidade;
+                    }
+                })
+                .catch(error => console.error('Erro ao buscar dados:', error));
+        }
+
+        // Chama a função para buscar os dados a cada 3 segundos
+        setInterval(buscarDadosSensor, 3000);
+
+        // Busca os dados assim que a página carregar
+        document.addEventListener('DOMContentLoaded', buscarDadosSensor);
+    </script>
+</body>
+</html>
