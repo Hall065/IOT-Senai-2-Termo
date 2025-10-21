@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Semáforo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script>
+            function atualizar() {
+                fetch("/status")
+                    .then(resp => resp.json()) // ✅ corrige aqui
+                    .then(data => {
+                        document.querySelectorAll(".luz").forEach(el => el.className = "luz");
+                        document.getElementById(data.cor).classList.add(data.cor);
+                    });
+            }
+            setInterval(atualizar, 1000);
+            window.onload = atualizar;
+        </script>
+</head>
+<body>
+    <h1>Semáforo Simples</h1>
+    <div class="semaforo">
+        <div class="luz" id="vermelho"></div>
+        <div class="luz" id="amarelo"></div>
+        <div class="luz" id="verde"></div>
+    </div>
+</body>
+</html>
