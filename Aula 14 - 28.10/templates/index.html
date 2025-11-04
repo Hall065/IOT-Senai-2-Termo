@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento CPD - Temperatura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .status-item {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Cores dos status */
+        .status-ideal { background: linear-gradient(45deg, #00b09b, #96c93d); }
+        .status-quente { background: linear-gradient(45deg, #ff9a00, #ffcc00); }
+        .status-muito-quente { background: linear-gradient(45deg, #ff416c, #ff4b2b); }
+        .status-perigo { background: linear-gradient(45deg, #8b0000, #ff0000); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        #tempChart {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .info-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .limites {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏢 Monitoramento CPD - Temperatura</h1>
+            <p>Sistema de monitoramento em tempo real</p>
+        </header>
+
+        <div class="dashboard">
+            <!-- Card de Status Atual -->
+            <div class="card">
+                <h2>📊 Status Atual</h2>
+                <div class="status-grid">
+                    <div class="status-item" id="statusTemperatura">
+                        <div class="status-label">TEMPERATURA</div>
+                        <div class="status-value" id="temperaturaAtual">-- °C</div>
+                        <div class="status-label" id="statusText">Carregando...</div>
+                    </div>
+                    
+                    <div class="status-item" id="statusServo">
+                        <div class="status-label">EXAUSTOR</div>
+                        <div class="status-value" id="servoPos">--°</div>
+                        <div class="status-label" id="servoStatus">Carregando...</div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <div><strong>Última atualização:</strong> <span id="lastUpdate">--</span></div>
+                    <div class="limites">
+                        <span>🟢 IDEAL: ≤ 20°C</span>
+                        <span>🟡 QUENTE: ≤ 27°C</span>
+                        <span>🟠 MTO QUENTE: ≤ 30°C</span>
+                        <span>🔴 PERIGO: > 30°C</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Gráfico -->
+            <div class="card">
+                <h2>📈 Histórico de Temperatura</h2>
+                <div class="chart-container">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Controles -->
+        <div class="card">
+            <h2>🎛️ Controles</h2>
+            <div class="controls">
+                <button onclick="enviarComando('testar_buzzer')">🔊 Testar Alarme</button>
+                <button onclick="enviarComando('parar_buzzer')">🔇 Parar Alarme</button>
+                <button onclick="location.reload()">🔄 Atualizar Página</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis para o gráfico
+        let temperaturaChart;
+        let historicoTemperaturas = [];
+        let historicoTimestamps = [];
+
+        // Inicializa o gráfico
+        function inicializarGrafico() {
+            const ctx = document.getElementById('tempChart').getContext('2d');
+            temperaturaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicoTimestamps,
+                    datasets: [{
+                        label: 'Temperatura (°C)',
+                        data: historicoTemperaturas,
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Atualiza a interface com novos dados
+        function atualizarInterface(data) {
+            if (data.error) {
+                console.error('Erro:', data.error);
+                return;
+            }
+
+            // Atualiza temperatura e status
+            const tempElement = document.getElementById('temperaturaAtual');
+            const statusElement = document.getElementById('statusTemperatura');
+            const statusTextElement = document.getElementById('statusText');
+            
+            tempElement.textContent = data.temperatura.toFixed(1) + ' °C';
+            statusTextElement.textContent = data.status;
+            
+            // Aplica cor conforme status
+            statusElement.className = 'status-item ';
+            if (data.status === 'IDEAL') statusElement.classList.add('status-ideal');
+            else if (data.status === 'QUENTE') statusElement.classList.add('status-quente');
+            else if (data.status === 'MTO QUENTE') statusElement.classList.add('status-muito-quente');
+            else if (data.status === 'PERIGO') statusElement.classList.add('status-perigo');
+
+            // Atualiza servo
+            document.getElementById('servoPos').textContent = data.servo_pos + '°';
+            document.getElementById('servoStatus').textContent = 
+                data.servo_pos === 0 ? 'Parado' : 
+                data.servo_pos === 90 ? 'Médio' : 
+                data.servo_pos === 180 ? 'Máximo' : 'Crítico';
+
+            // Atualiza timestamp
+            document.getElementById('lastUpdate').textContent = data.timestamp;
+
+            // Atualiza gráfico
+            if (data.historico && data.historico.length > 0) {
+                const ultimoPonto = data.historico[data.historico.length - 1];
+                historicoTemperaturas.push(ultimoPonto.temperatura);
+                historicoTimestamps.push(ultimoPonto.timestamp);
+                
+                // Mantém apenas os últimos 20 pontos no gráfico
+                if (historicoTemperaturas.length > 20) {
+                    historicoTemperaturas.shift();
+                    historicoTimestamps.shift();
+                }
+                
+                temperaturaChart.update();
+            }
+        }
+
+        // Busca status do servidor
+        async function buscarStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                atualizarInterface(data);
+            } catch (error) {
+                console.error('Erro ao buscar status:', error);
+            }
+        }
+
+        // Envia comandos para o Arduino
+        async function enviarComando(cmd) {
+            try {
+                const response = await fetch('/comando/' + cmd);
+                const data = await response.json();
+                console.log('Comando enviado:', cmd, data);
+            } catch (error) {
+                console.error('Erro ao enviar comando:', error);
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarGrafico();
+            buscarStatus();
+            // Atualiza a cada 2 segundos
+            setInterval(buscarStatus, 2000);
+        });
+    </script>
+    
+    <!-- Biblioteca Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
