@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel IoT</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background: #f7f7f7; }
+        .container { max-width: 400px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .bloco { margin-bottom: 20px; }
+        .bloco h2 { border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        p { font-size: 1.1em; margin: 8px 0; }
+
+        #temp, #statusTxt, #servo { font-weight: bold; color: #007bff; }
+        .erro { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Painel IoT</h1>
+
+        <div class="bloco">
+            <h2>Leituras</h2>
+            <p>Temperatura: <span id="temp">--</span> &deg;C</p>
+            <p>Status: <span id="statusTxt">--</span></p>
+            <p>Servo: <span id="servo">--</span> °</p>
+        </div>
+
+        <div class="bloco">
+            <h2>Histórico (últimos 30)</h2>
+            <div id="historico">Carregando...</div>
+        </div>
+    </div>
+
+    <script>
+        function atualizarDados() {
+            fetch('/status')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('temp').innerText = "Erro";
+                        document.getElementById('statusTxt').innerText = "Erro";
+                        document.getElementById('servo').innerText = "--";
+                        document.getElementById('historico').innerHTML = "<span class='erro'>Aguardando Arduino...</span>";
+                        return;
+                    }
+
+                    document.getElementById('temp').innerText = data.temperatura ?? "--";
+                    document.getElementById('statusTxt').innerText = data.status ?? "--";
+                    document.getElementById('servo').innerText = data.servo_pos ?? "--";
+
+                    let hist = data.historico || [];
+                    let html = hist.map(item => `${item.timestamp}: ${item.temperatura}°C`).join("<br>");
+                    document.getElementById('historico').innerHTML = html || "Sem dados ainda...";
+                })
+                .catch(() => {
+                    document.getElementById('historico').innerHTML = "<span class='erro'>Erro ao conectar</span>";
+                });
+        }
+
+        setInterval(atualizarDados, 3000);
+        atualizarDados();
+    </script>
+</body>
+</html>
